@@ -2,34 +2,34 @@
 <html lang="ko">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>���� 3CODE ����</title>
+<title>공항 3CODE 퀴즈</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#0e1c28;color:#eef6fa;font:16px/1.5 system-ui,sans-serif}main{max-width:550px;margin:auto;padding:36px 18px}header{margin-bottom:24px}h1,h2,p{margin:0 0 12px}h1{font-size:clamp(28px,8vw,42px);letter-spacing:-.05em}header p,.muted{color:#adc2ce}.panel{background:#172a39;border:1px solid #365064;border-radius:22px;padding:22px}label{display:block;font-weight:650;margin:0 0 14px}button,select,input{font:inherit;border-radius:11px;min-height:48px}select,input,button{width:100%;padding:10px 13px}select,input,.secondary,#choices button{background:#102230;color:#f0f7fb;border:1px solid #537084}select{margin-top:5px}button{background:#8cf3cb;color:#082a25;font-weight:750;border:1px solid transparent;cursor:pointer}button:disabled{cursor:default}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #f7cf75;outline-offset:3px}.stack{display:grid;gap:10px}progress{width:100%;height:9px;accent-color:#8cf3cb;margin-bottom:16px}#prompt{font-size:clamp(29px,8vw,44px);line-height:1.2;overflow-wrap:anywhere}#choices button{text-align:left}#choices .correct{border-color:#8cf3cb;background:#17493f}#choices .wrong{border-color:#ffadb0;background:#562e39}#feedback{margin:12px 0;color:#ffdf98}#mistakes{padding-left:22px}#score{font-size:36px;color:#8cf3cb;font-weight:750}[hidden]{display:none!important}
 </style>
 <main>
-<header><h1>���� 3CODE ����</h1><p>�����װ� ����ǥ �� 133�� �ڵ�</p></header>
+<header><h1>공항 3CODE 퀴즈</h1><p>대한항공 기준표 · 133개 코드</p></header>
 <section class="panel" id="setup">
-<label>�н� ����<select id="region"><option value="">��ü (133)</option></select></label>
-<label>���� ����<select id="mode"><option value="city">�ڵ� �� ���� �� 4������</option><option value="code">���� �� �ڵ� �� 4������</option><option value="type">���� �� �ڵ� �� ���� �Է�</option><option value="mixed">�ڵ� �� ���� �� ȥ�� 4������</option></select></label>
-<label>���� ��<select id="count"><option value="10">�ִ� 10����</option><option value="20">�ִ� 20����</option><option value="all">���� ���� ��ü</option></select></label>
-<button id="start">���� ����</button>
+<label>학습 범위<select id="region"><option value="">전체 (133)</option></select></label>
+<label>문제 유형<select id="mode"><option value="city">코드 → 도시 · 4지선다</option><option value="code">도시 → 코드 · 4지선다</option><option value="type">도시 → 코드 · 직접 입력</option><option value="mixed">코드 ↔ 도시 · 혼합 4지선다</option></select></label>
+<label>문제 수<select id="count"><option value="10">최대 10문제</option><option value="20">최대 20문제</option><option value="all">선택 범위 전체</option></select></label>
+<button id="start">퀴즈 시작</button>
 </section>
 <section class="panel" id="quiz" hidden>
-<p class="muted" id="position"></p><progress id="progress" aria-label="Ǯ�� �����"></progress>
+<p class="muted" id="position"></p><progress id="progress" aria-label="풀이 진행률"></progress>
 <p class="muted" id="instruction"></p><h2 id="prompt" tabindex="-1"></h2>
 <div class="stack" id="choices"></div>
-<form class="stack" id="typing" hidden><input id="answer" aria-label="3�ڸ� �ڵ�" placeholder="3�ڸ� �ڵ� �Է�" maxlength="3" autocapitalize="characters" autocomplete="off" spellcheck="false" enterkeyhint="done" required pattern="[A-Za-z]{3}"><button id="submit">���� Ȯ��</button></form>
+<form class="stack" id="typing" hidden><input id="answer" aria-label="3자리 코드" placeholder="3자리 코드 입력" maxlength="3" autocapitalize="characters" autocomplete="off" spellcheck="false" enterkeyhint="done" required pattern="[A-Za-z]{3}"><button id="submit">정답 확인</button></form>
 <p id="feedback" role="status"></p>
-<div class="stack"><button id="next" hidden>���� ����</button><button class="secondary" id="skip">�𸣰ھ��</button><button class="secondary" id="back">���� ��������</button></div>
+<div class="stack"><button id="next" hidden>다음 문제</button><button class="secondary" id="skip">모르겠어요</button><button class="secondary" id="back">범위 선택으로</button></div>
 </section>
 <section class="panel" id="result" hidden>
-<h2 id="result-title" tabindex="-1">���� ���</h2><p id="score"></p><ul id="mistakes"></ul>
-<div class="stack"><button id="retry">Ʋ�� ���� �ٽ� Ǯ��</button><button class="secondary" id="reset">���� ��������</button></div>
+<h2 id="result-title" tabindex="-1">퀴즈 결과</h2><p id="score"></p><ul id="mistakes"></ul>
+<div class="stack"><button id="retry">틀린 문제 다시 풀기</button><button class="secondary" id="reset">범위 선택으로</button></div>
 </section>
-<noscript>��� �����Ϸ��� ���������� JavaScript�� �� �ּ���.</noscript>
+<noscript>퀴즈를 실행하려면 브라우저에서 JavaScript를 켜 주세요.</noscript>
 </main>
 <script>
-const source = "���ѹα�|ICN ��õ;GMP ����;TAE �뱸;PUS �λ�;KWJ ����;KUV ����;MWX ����;RSU ����;USN ���;WJU ����;HIN ����/��õ;KPO ����/����;SSN ����(�������);CJU ����\n�Ϻ�|OKJ ��ī�߸�;FUK ������ī;KIX ����ī;NRT ����Ÿ(����);CTS ������;OKA ��Ű����;KMJ ��������;KKJ ��Ÿť��;NGS ������Ű;NGO ������;KMQ ������;KOJ �����ø�;SHI �̾�������;AOJ �ƿ���;KIJ ���̰�Ÿ;KUH ���÷�;HND �ϳ״�(����)\n�߱�|PEK ����¡;PVG Ǫ��(������);TAO Ī�ٿ�;CGO ������;NKG ��¡;SHE �ɾ�;HFE ������;SZX ��õ;CAN ������;CSX ���;TSN ����;XIY �þ�;YNJ ����;DYG ������;FOC Ǫ����;XMN ����(�Ϲ�);HGH ������;WEH ����;TNA ����;DLC ���;KMG ���;NNG ����;KWE ���̾�;URC ��繫ġ;MDG ������;WUH ����;TXN Ȳ��\nȫ��|HKG ȫ��\n��ī��|MFM ��ī��\n�븸|TPE Ÿ������;RMQ Ÿ����;KHH ������\n����|UBN ������丣\n�̱�|DFW �޶�;ATL ��Ʋ��Ÿ;GUM ��;JFK ����;ORD ��ī��;SFO �������ý���;HNL ȣ����(�Ͽ���);IAD ������;SEA �þ�Ʋ;BOS ������;LAS �󽺺�����;LAX �ν���������;ANC ��Ŀ����\nĳ����|YYZ �����;YVR ������\nü��|PRG ������\n����|FRA ����ũǪ��Ʈ\n����Ʈ����|VIE �񿣳�\n������|BCN �ٸ����γ�;MAD ���帮��\n������|ZRH �븮��\nũ�ξ�Ƽ��|ZAG �ڱ׷���\n������|MRS ��������;CDG �ĸ�\n����|LHR ����\n��Ű|IST �̽�ź��\n�밡��|BUD �δ��佺Ʈ\n�״�����|AMS �Ͻ��׸���\n��������|LIS ������\n��Ż����|MXP �ж��;FCO �θ�\nȣ��|SYD �õ��;BNE �긮���\n��������|AKL ��Ŭ����\n����|NAN ����\n�̰�����|SIN �̰�����\n�ε��׽þ�|CGK ��ī��Ÿ;DPS ���Ļ縣(�߸�)\n�����̽þ�|KUL ���˶��Ǫ��;BKI ��ŸŰ���߷�\n�̾Ḷ|RGN ���\nį�����|KTI ������;REP �ÿ���\n����|KTM īƮ����\n��Ʈ��|HAN �ϳ���;SGN ȣġ��;DAD �ٳ�;CXR į����(��Ʈ��);PQC Ǫ�ٿ�;HPH ������\n�ȶ��|ROR �ڷθ�\n�ʸ���|MNL ���Ҷ�;CRK Ŭ��;CEB ����\n�±�|BKK ����;HKT Ǫ��;CNX ġ�Ӹ���;KBV ũ���\n���þ�|VVO ����𺸽���ũ;IKT �̸�����ũ;SVO ��ũ��;LED ��Ʈ���׸��θ�ũ\n���Ű��ź|TAS Ÿ����Ʈ\n�̽���|TLV �ھƺ��\n�ƶ����̸�Ʈ|DXB �ι���\n�ε�|DEL ����;BOM ������\n������ī|CMB �ݷҺ�\n�����|MLE ����";
+const source = "대한민국|ICN 인천;GMP 김포;TAE 대구;PUS 부산;KWJ 광주;KUV 군산;MWX 무안;RSU 여수;USN 울산;WJU 원주;HIN 전주/사천;KPO 포항/경주;SSN 성남(군사공항);CJU 제주\n일본|OKJ 오카야마;FUK 후쿠오카;KIX 오사카;NRT 나리타(도쿄);CTS 삿포로;OKA 오키나와;KMJ 구마모토;KKJ 기타큐슈;NGS 나가사키;NGO 나고야;KMQ 고마쓰;KOJ 가고시마;SHI 미야코지마;AOJ 아오모리;KIJ 니이가타;KUH 쿠시로;HND 하네다(도쿄)\n중국|PEK 베이징;PVG 푸동(상하이);TAO 칭다오;CGO 정저우;NKG 난징;SHE 심양;HFE 허페이;SZX 심천;CAN 광저우;CSX 장사;TSN 텐진;XIY 시안;YNJ 연길;DYG 장자제;FOC 푸저우;XMN 샤먼(하문);HGH 항저우;WEH 위해;TNA 지난;DLC 대련;KMG 쿤밍;NNG 난닝;KWE 구이양;URC 우루무치;MDG 무단장;WUH 우한;TXN 황산\n홍콩|HKG 홍콩\n마카오|MFM 마카오\n대만|TPE 타이페이;RMQ 타이중;KHH 가오슝\n몽골|UBN 울란바토르\n미국|DFW 달라스;ATL 애틀란타;GUM 괌;JFK 뉴욕;ORD 시카고;SFO 샌프란시스코;HNL 호놀룰루(하와이);IAD 워싱턴;SEA 시애틀;BOS 보스턴;LAS 라스베가스;LAX 로스앤젤레스;ANC 앵커리지\n캐나다|YYZ 토론토;YVR 밴쿠버\n체코|PRG 프라하\n독일|FRA 프랑크푸르트\n오스트리아|VIE 비엔나\n스페인|BCN 바르셀로나;MAD 마드리드\n스위스|ZRH 취리히\n크로아티아|ZAG 자그레브\n프랑스|MRS 마르세유;CDG 파리\n영국|LHR 런던\n터키|IST 이스탄불\n헝가리|BUD 부다페스트\n네덜란드|AMS 암스테르담\n포르투갈|LIS 리스본\n이탈리아|MXP 밀라노;FCO 로마\n호주|SYD 시드니;BNE 브리즈번\n뉴질랜드|AKL 오클랜드\n피지|NAN 난디\n싱가포르|SIN 싱가포르\n인도네시아|CGK 자카르타;DPS 덴파사르(발리)\n말레이시아|KUL 쿠알라룸푸르;BKI 코타키나발루\n미얀마|RGN 양곤\n캄보디아|KTI 프놈펜;REP 시엠립\n네팔|KTM 카트만두\n베트남|HAN 하노이;SGN 호치민;DAD 다낭;CXR 캄란흐(나트랑);PQC 푸꾸옥;HPH 하이퐁\n팔라우|ROR 코로르\n필리핀|MNL 마닐라;CRK 클락;CEB 세부\n태국|BKK 방콕;HKT 푸켓;CNX 치앙마이;KBV 크라비\n러시아|VVO 블라디보스토크;IKT 이르쿠츠크;SVO 모스크바;LED 상트페테르부르크\n우즈베키스탄|TAS 타슈켄트\n이스라엘|TLV 텔아비브\n아랍에미리트|DXB 두바이\n인도|DEL 델리;BOM 뭄바이\n스리랑카|CMB 콜롬보\n몰디브|MLE 말레";
 const airports = source.split('\n').flatMap(line => {
   const [country, entries] = line.split('|');
   return entries.split(';').map(entry => ({country, code:entry.slice(0,3), city:entry.slice(4)}));
@@ -51,7 +51,7 @@ function shuffle(items) {
 function screen(id) {
   for (const name of ['setup','quiz','result']) get(name).hidden = name !== id;
 }
-const cityLabel = item => item.city + ' �� ' + item.country;
+const cityLabel = item => item.city + ' · ' + item.country;
 let scope, questions, index, missed, locked;
 get('start').onclick = () => {
   scope = airports.filter(item => !region.value || item.country === region.value);
@@ -76,7 +76,7 @@ function showQuestion() {
   get('progress').max = questions.length;
   get('progress').value = index;
   get('prompt').textContent = askCity ? item.code : cityLabel(item);
-  get('instruction').textContent = askCity ? '�� �ڵ忡 �ش��ϴ� ���ø� ��������.' : typed ? '�� ���ÿ� �ش��ϴ� 3�ڸ� �ڵ带 �Է��ϼ���.' : '�� ���ÿ� �ش��ϴ� �ڵ带 ��������.';
+  get('instruction').textContent = askCity ? '이 코드에 해당하는 도시를 고르세요.' : typed ? '이 도시에 해당하는 3자리 코드를 입력하세요.' : '이 도시에 해당하는 코드를 고르세요.';
   get('choices').replaceChildren();
   get('feedback').textContent = '';
   get('next').hidden = true;
@@ -120,9 +120,9 @@ function grade(answer) {
   }
   get('answer').disabled = true;
   get('submit').disabled = true;
-  get('feedback').textContent = (correct ? '���� �� ' : '������ ') + item.code + ' �� ' + cityLabel(item);
+  get('feedback').textContent = (correct ? '정답 · ' : '정답은 ') + item.code + ' · ' + cityLabel(item);
   get('progress').value = index + 1;
-  get('next').textContent = index + 1 === questions.length ? '��� ����' : '���� ����';
+  get('next').textContent = index + 1 === questions.length ? '결과 보기' : '다음 문제';
   get('next').hidden = false;
   get('skip').hidden = true;
 }
@@ -133,10 +133,10 @@ get('next').onclick = () => {
   else showResult();
 };
 function showResult() {
-  get('score').textContent = (questions.length - missed.length) + ' / ' + questions.length + ' ����';
+  get('score').textContent = (questions.length - missed.length) + ' / ' + questions.length + ' 정답';
   get('mistakes').replaceChildren(...missed.map(({item}) => {
     const row = document.createElement('li');
-    row.textContent = item.code + ' �� ' + cityLabel(item);
+    row.textContent = item.code + ' · ' + cityLabel(item);
     return row;
   }));
   get('retry').hidden = missed.length === 0;
