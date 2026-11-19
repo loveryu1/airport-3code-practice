@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>���� 3CODE ����</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0e1c28;color:#eef6fa;font:16px/1.5 system-ui,sans-serif}main{max-width:550px;margin:auto;padding:36px 18px}header{margin-bottom:24px}h1,h2,p{margin:0 0 12px}h1{font-size:clamp(28px,8vw,42px);letter-spacing:-.05em}header p,.muted{color:#adc2ce}.panel{background:#172a39;border:1px solid #365064;border-radius:22px;padding:22px}label{display:block;font-weight:650;margin:0 0 14px}button,select,input{font:inherit;border-radius:11px;min-height:48px}select,input,button{width:100%;padding:10px 13px}select,input,.secondary,#choices button{background:#102230;color:#f0f7fb;border:1px solid #537084}select{margin-top:5px}button{background:#8cf3cb;color:#082a25;font-weight:750;border:1px solid transparent;cursor:pointer}button:disabled{cursor:default}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #f7cf75;outline-offset:3px}.stack{display:grid;gap:10px}progress{width:100%;height:9px;accent-color:#8cf3cb;margin-bottom:16px}#prompt{font-size:clamp(29px,8vw,44px);line-height:1.2;overflow-wrap:anywhere}#choices button{text-align:left}#choices .correct{border-color:#8cf3cb;background:#17493f}#choices .wrong{border-color:#ffadb0;background:#562e39}#feedback{margin:12px 0;color:#ffdf98}#mistakes{padding-left:22px}#score{font-size:36px;color:#8cf3cb;font-weight:750}[hidden]{display:none!important}
+</style>
+<main>
+<header><h1>���� 3CODE ����</h1><p>�����װ� ����ǥ �� 133�� �ڵ�</p></header>
+<section class="panel" id="setup">
+<label>�н� ����<select id="region"><option value="">��ü (133)</option></select></label>
+<label>���� ����<select id="mode"><option value="city">�ڵ� �� ���� �� 4������</option><option value="code">���� �� �ڵ� �� 4������</option><option value="type">���� �� �ڵ� �� ���� �Է�</option><option value="mixed">�ڵ� �� ���� �� ȥ�� 4������</option></select></label>
+<label>���� ��<select id="count"><option value="10">�ִ� 10����</option><option value="20">�ִ� 20����</option><option value="all">���� ���� ��ü</option></select></label>
+<button id="start">���� ����</button>
+</section>
+<section class="panel" id="quiz" hidden>
+<p class="muted" id="position"></p><progress id="progress" aria-label="Ǯ�� �����"></progress>
+<p class="muted" id="instruction"></p><h2 id="prompt" tabindex="-1"></h2>
+<div class="stack" id="choices"></div>
+<form class="stack" id="typing" hidden><input id="answer" aria-label="3�ڸ� �ڵ�" placeholder="3�ڸ� �ڵ� �Է�" maxlength="3" autocapitalize="characters" autocomplete="off" spellcheck="false" enterkeyhint="done" required pattern="[A-Za-z]{3}"><button id="submit">���� Ȯ��</button></form>
+<p id="feedback" role="status"></p>
+<div class="stack"><button id="next" hidden>���� ����</button><button class="secondary" id="skip">�𸣰ھ��</button><button class="secondary" id="back">���� ��������</button></div>
+</section>
+<section class="panel" id="result" hidden>
+<h2 id="result-title" tabindex="-1">���� ���</h2><p id="score"></p><ul id="mistakes"></ul>
+<div class="stack"><button id="retry">Ʋ�� ���� �ٽ� Ǯ��</button><button class="secondary" id="reset">���� ��������</button></div>
+</section>
+<noscript>��� �����Ϸ��� ���������� JavaScript�� �� �ּ���.</noscript>
+</main>
+<script>
+const source = "���ѹα�|ICN ��õ;GMP ����;TAE �뱸;PUS �λ�;KWJ ����;KUV ����;MWX ����;RSU ����;USN ���;WJU ����;HIN ����/��õ;KPO ����/����;SSN ����(�������);CJU ����\n�Ϻ�|OKJ ��ī�߸�;FUK ������ī;KIX ����ī;NRT ����Ÿ(����);CTS ������;OKA ��Ű����;KMJ ��������;KKJ ��Ÿť��;NGS ������Ű;NGO ������;KMQ ������;KOJ �����ø�;SHI �̾�������;AOJ �ƿ���;KIJ ���̰�Ÿ;KUH ���÷�;HND �ϳ״�(����)\n�߱�|PEK ����¡;PVG Ǫ��(������);TAO Ī�ٿ�;CGO ������;NKG ��¡;SHE �ɾ�;HFE ������;SZX ��õ;CAN ������;CSX ���;TSN ����;XIY �þ�;YNJ ����;DYG ������;FOC Ǫ����;XMN ����(�Ϲ�);HGH ������;WEH ����;TNA ����;DLC ���;KMG ���;NNG ����;KWE ���̾�;URC ��繫ġ;MDG ������;WUH ����;TXN Ȳ��\nȫ��|HKG ȫ��\n��ī��|MFM ��ī��\n�븸|TPE Ÿ������;RMQ Ÿ����;KHH ������\n����|UBN ������丣\n�̱�|DFW �޶�;ATL ��Ʋ��Ÿ;GUM ��;JFK ����;ORD ��ī��;SFO �������ý���;HNL ȣ����(�Ͽ���);IAD ������;SEA �þ�Ʋ;BOS ������;LAS �󽺺�����;LAX �ν���������;ANC ��Ŀ����\nĳ����|YYZ �����;YVR ������\nü��|PRG ������\n����|FRA ����ũǪ��Ʈ\n����Ʈ����|VIE �񿣳�\n������|BCN �ٸ����γ�;MAD ���帮��\n������|ZRH �븮��\nũ�ξ�Ƽ��|ZAG �ڱ׷���\n������|MRS ��������;CDG �ĸ�\n����|LHR ����\n��Ű|IST �̽�ź��\n�밡��|BUD �δ��佺Ʈ\n�״�����|AMS �Ͻ��׸���\n��������|LIS ������\n��Ż����|MXP �ж��;FCO �θ�\nȣ��|SYD �õ��;BNE �긮���\n��������|AKL ��Ŭ����\n����|NAN ����\n�̰�����|SIN �̰�����\n�ε��׽þ�|CGK ��ī��Ÿ;DPS ���Ļ縣(�߸�)\n�����̽þ�|KUL ���˶��Ǫ��;BKI ��ŸŰ���߷�\n�̾Ḷ|RGN ���\nį�����|KTI ������;REP �ÿ���\n����|KTM īƮ����\n��Ʈ��|HAN �ϳ���;SGN ȣġ��;DAD �ٳ�;CXR į����(��Ʈ��);PQC Ǫ�ٿ�;HPH ������\n�ȶ��|ROR �ڷθ�\n�ʸ���|MNL ���Ҷ�;CRK Ŭ��;CEB ����\n�±�|BKK ����;HKT Ǫ��;CNX ġ�Ӹ���;KBV ũ���\n���þ�|VVO ����𺸽���ũ;IKT �̸�����ũ;SVO ��ũ��;LED ��Ʈ���׸��θ�ũ\n���Ű��ź|TAS Ÿ����Ʈ\n�̽���|TLV �ھƺ��\n�ƶ����̸�Ʈ|DXB �ι���\n�ε�|DEL ����;BOM ������\n������ī|CMB �ݷҺ�\n�����|MLE ����";
+const airports = source.split('\n').flatMap(line => {
+  const [country, entries] = line.split('|');
+  return entries.split(';').map(entry => ({country, code:entry.slice(0,3), city:entry.slice(4)}));
+});
+const get = id => document.getElementById(id);
+const region = get('region');
+for (const country of new Set(airports.map(item => item.country))) {
+  const size = airports.filter(item => item.country === country).length;
+  region.add(new Option(country + ' (' + size + ')', country));
+}
+function shuffle(items) {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+function screen(id) {
+  for (const name of ['setup','quiz','result']) get(name).hidden = name !== id;
+}
+const cityLabel = item => item.city + ' �� ' + item.country;
+let scope, questions, index, missed, locked;
+get('start').onclick = () => {
+  scope = airports.filter(item => !region.value || item.country === region.value);
+  const count = get('count').value;
+  const mode = get('mode').value;
+  const selected = shuffle(scope).slice(0, count === 'all' ? scope.length : Number(count));
+  begin(selected.map(item => ({item, mode:mode === 'mixed' ? (Math.random() < .5 ? 'city' : 'code') : mode})));
+};
+function begin(list) {
+  questions = list;
+  index = 0;
+  missed = [];
+  screen('quiz');
+  showQuestion();
+}
+function showQuestion() {
+  const {item, mode} = questions[index];
+  const askCity = mode === 'city';
+  const typed = mode === 'type';
+  locked = false;
+  get('position').textContent = (index + 1) + ' / ' + questions.length;
+  get('progress').max = questions.length;
+  get('progress').value = index;
+  get('prompt').textContent = askCity ? item.code : cityLabel(item);
+  get('instruction').textContent = askCity ? '�� �ڵ忡 �ش��ϴ� ���ø� ��������.' : typed ? '�� ���ÿ� �ش��ϴ� 3�ڸ� �ڵ带 �Է��ϼ���.' : '�� ���ÿ� �ش��ϴ� �ڵ带 ��������.';
+  get('choices').replaceChildren();
+  get('feedback').textContent = '';
+  get('next').hidden = true;
+  get('skip').hidden = false;
+  get('typing').hidden = !typed;
+  get('answer').value = '';
+  get('answer').disabled = false;
+  get('submit').disabled = false;
+  if (!typed) {
+    const other = [
+      ...shuffle(scope.filter(candidate => candidate !== item)),
+      ...shuffle(airports.filter(candidate => !scope.includes(candidate)))
+    ].slice(0,3);
+    for (const candidate of shuffle([item,...other])) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = askCity ? cityLabel(candidate) : candidate.code;
+      button.dataset.code = candidate.code;
+      button.onclick = () => grade(candidate.code);
+      get('choices').append(button);
+    }
+  }
+  get('prompt').focus();
+}
+get('typing').onsubmit = event => {
+  event.preventDefault();
+  grade(get('answer').value.trim().toUpperCase());
+};
+get('skip').onclick = () => grade('');
+function grade(answer) {
+  if (locked) return;
+  locked = true;
+  const question = questions[index];
+  const {item, mode} = question;
+  const correct = answer === item.code;
+  if (!correct) missed.push(question);
+  for (const button of get('choices').children) {
+    button.disabled = true;
+    if (button.dataset.code === item.code) button.classList.add('correct');
+    else if (button.dataset.code === answer) button.classList.add('wrong');
+  }
+  get('answer').disabled = true;
+  get('submit').disabled = true;
+  get('feedback').textContent = (correct ? '���� �� ' : '������ ') + item.code + ' �� ' + cityLabel(item);
+  get('progress').value = index + 1;
+  get('next').textContent = index + 1 === questions.length ? '��� ����' : '���� ����';
+  get('next').hidden = false;
+  get('skip').hidden = true;
+}
+get('next').onclick = () => {
+  if (!locked) return;
+  index++;
+  if (index < questions.length) showQuestion();
+  else showResult();
+};
+function showResult() {
+  get('score').textContent = (questions.length - missed.length) + ' / ' + questions.length + ' ����';
+  get('mistakes').replaceChildren(...missed.map(({item}) => {
+    const row = document.createElement('li');
+    row.textContent = item.code + ' �� ' + cityLabel(item);
+    return row;
+  }));
+  get('retry').hidden = missed.length === 0;
+  screen('result');
+  get('result-title').focus();
+}
+get('retry').onclick = () => begin(shuffle(missed));
+get('back').onclick = get('reset').onclick = () => {
+  screen('setup');
+  region.focus();
+};
+</script>
+</html>
